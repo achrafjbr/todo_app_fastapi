@@ -6,6 +6,7 @@ from .enum_tags import Tags
 from . import repository
 from typing import List
 from . import util
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -24,11 +25,10 @@ def get_db():
           status_code=status.HTTP_201_CREATED, tags=[Tags.users])
 async def sing_up(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if not util.check_email(user.user_email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Email is not valid")
+        raise util.rais_exception(status.HTTP_400_BAD_REQUEST, detail="Email is not valid")
+
     if not util.check_password(user.user_password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Password is not valid")
+        raise util.rais_exception(status.HTTP_400_BAD_REQUEST, detail="Password is not valid")
     response = await repository.sing_up(user=user, db=db)
     return response
 
